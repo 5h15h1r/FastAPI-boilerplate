@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Request, Query, Path, Depends
+from fastapi import Request, Query, Path, Depends
 from typing import List, Optional
 from app.module_name.services.job_service import JobService
 from app.module_name.schemas.job_schema import JobResponse
+from app.custom_api_router import CustomAPIRouter
 
-router = APIRouter()
+router = CustomAPIRouter(prefix="/api/v1.0", tags=["Jobs"])
 job_service = JobService()
 
 @router.get("/jobs/{company_uuid}", response_model=JobResponse)

@@ -10,7 +10,8 @@ A production-ready FastAPI application structure with PostgreSQL integration, de
 - Environment-based configuration
 - CORS support
 - Type annotations throughout
-- Structured error handling
+- Structured error handling with global exception handlers
+- Custom API Router with trailing slash support
 - Dependency injection pattern
 
 ## Project Structure
@@ -18,16 +19,20 @@ A production-ready FastAPI application structure with PostgreSQL integration, de
 ```
 .
 ├── app/
-│   ├── main.py                 # Application entry point
-│   ├── db_session.py           # Database connection utilities
-│   ├── module_name/            # Feature module
-│   │   ├── constants/          # Constant definitions
-│   │   ├── daos/               # Data Access Objects
-│   │   ├── routers/            # API endpoints
-│   │   ├── schemas/            # Pydantic models
-│   │   └── services/           # Business logic
+│   ├── main.py                             # Application entry point
+│   ├── db_session.py                       # Database connection utilities
+│   ├── custom_api_router.py                # Custom router with trailing slash support
+│   ├── global_utilities/
+│   │   └── functions/
+│   │       └── request_validation.py       # Global exception handlers
+│   ├── module_name/                        # Feature module
+│   │   ├── constants/                      # Constant definitions
+│   │   ├── daos/                           # Data Access Objects
+│   │   ├── routers/                        # API endpoints
+│   │   ├── schemas/                        # Pydantic models
+│   │   └── services/                       # Business logic
 └── config/
-    └── app_config.py           # Application configuration
+    └── app_config.py                       # Application configuration
 ```
 
 ## Installation
@@ -89,9 +94,9 @@ uvicorn app.main:app
 
 ## API Documentation
 
-Once the application is running, access the API documentation at:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+API documentation availability depends on the environment:
+- Development: Swagger UI at http://localhost:8000/docs and ReDoc at http://localhost:8000/redoc
+- Production: Documentation endpoints are disabled for security
 
 ## Architecture Overview
 
@@ -118,11 +123,27 @@ This boilerplate follows a clean architecture approach with the following layers
 - Defines API endpoints
 - Handles HTTP requests/responses
 - Uses dependency injection for services
+- Uses CustomAPIRouter to support both with and without trailing slashes
 - Example: `job_router.py` endpoints
 
 ### 5. Constants (app/module_name/constants)
 - Defines enums and constant values
 - Example: `JobStatus` and `JobType` enums
+
+### 6. Global Utilities (app/global_utilities)
+- Contains shared functionality
+- Includes exception handlers and request validation
+- Supports consistent error handling across the application
+
+## Custom API Router
+
+The boilerplate includes a `CustomAPIRouter` that extends FastAPI's `APIRouter` with trailing slash support. This means that endpoints will be accessible both with and without a trailing slash (e.g., `/api/v1.0/jobs` and `/api/v1.0/jobs/`), improving usability.
+
+```python
+from app.custom_api_router import CustomAPIRouter
+
+router = CustomAPIRouter(prefix="/api/v1.0", tags=["Jobs"])
+```
 
 ## How to Create a New API
 
@@ -164,10 +185,15 @@ Follow these steps to create a new API endpoint:
 
 4. **Create Router**:
    - Add a new file in `app/module_name/routers/`
+   - Use CustomAPIRouter instead of standard APIRouter
    - Define API endpoints
    - Include path parameters, query parameters, and request body as needed
    - Example router endpoint:
    ```python
+   from app.custom_api_router import CustomAPIRouter
+   
+   router = CustomAPIRouter(prefix="/api/v1.0", tags=["Items"])
+   
    @router.get("/items", response_model=ItemsResponse)
    async def get_items(
        request: Request,
@@ -186,7 +212,7 @@ Follow these steps to create a new API endpoint:
    ```python
    from app.module_name.routers import items_router
    
-   app.include_router(items_router.router, prefix="/api", tags=["items"])
+   app.include_router(items_router.router)
    ```
 
 ## Best Practices
@@ -199,4 +225,10 @@ Follow these steps to create a new API endpoint:
 6. **Document APIs**: Add docstrings to router functions and include parameter descriptions
 7. **Use Environment Variables**: Store configuration in environment variables
 8. **Follow Naming Conventions**: Use consistent naming patterns across all components
+9. **Global Exception Handling**: Let the global exception handlers manage errors when appropriate
+10. **Use CustomAPIRouter**: Always use CustomAPIRouter for new endpoint groups to ensure consistent URL behavior
+
+## License
+
+MIT
 
