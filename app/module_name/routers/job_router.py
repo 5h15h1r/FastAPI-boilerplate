@@ -1,43 +1,16 @@
-from fastapi import Request, Query, Path, Depends
-from typing import List, Optional
-from app.module_name.services.job_service import JobService
-from app.module_name.schemas.job_schema import JobResponse
-from app.custom_api_router import CustomAPIRouter
+from fastapi import APIRouter, HTTPException
+from app.module_name.services.job_service import ItemService
 
-router = CustomAPIRouter(prefix="/api/v1.0", tags=["Jobs"])
-job_service = JobService()
+router = APIRouter(prefix="/api/v1.0", tags=["Items"])
+item_service = ItemService()
 
-@router.get("/jobs/{company_uuid}", response_model=JobResponse)
-async def get_all_jobs(
-    request: Request,
-    company_uuid: str = Path(..., description="Company UUID"),
-    offset: Optional[int] = Query(None, description="Number of records to skip"),
-    limit: Optional[int] = Query(None, description="Number of records to return"),
-    job_type: Optional[List[str]] = Query([], description="Filter by job type"),
-    created_at: Optional[str] = Query(
-        None, description="Filter by: 3_months, 6_months, 9_months, 1_year"
-    ),
-    search_value: Optional[str] = Query(None, description="Search by name or job type"),
-):
-    """
-    Get all jobs for a company with optional filters
-    """
-    response = job_service.get_all_jobs(
-        company_uuid=company_uuid,
-        offset=offset,
-        limit=limit,
-        job_type=job_type,
-        created_at=created_at,
-        search_value=search_value,
-    )
-    return response
+@router.get("/items")
+def get_all_items():
+    return item_service.get_all_items()
 
-@router.get("/job/{job_uuid}", response_model=JobResponse)
-async def get_job_by_uuid(
-    request: Request,
-    job_uuid: str = Path(..., description="Job UUID"),
-):
-    """
-    Get job details by UUID
-    """
-    return job_service.get_job_by_uuid(job_uuid) 
+@router.get("/items/{item_id}")
+def get_item_by_id(item_id: int):
+    item = item_service.get_item_by_id(item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item 

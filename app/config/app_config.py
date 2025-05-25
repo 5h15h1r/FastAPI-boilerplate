@@ -7,6 +7,15 @@ config_dir = Path(__file__).resolve().parent
 
 
 class Configurations(BaseSettings):
+    DB_NAME: str
+    DB_HOST: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_PORT: int
+    ALLOWED_ORIGINS: List[str] = ["*"]
+    ALLOWED_METHODS: List[str] = ["*"]
+    ALLOWED_HEADERS: List[str] = ["*"]
+    APP_ENV: str
     
 
     class Config:

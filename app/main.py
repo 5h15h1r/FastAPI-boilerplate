@@ -1,21 +1,12 @@
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
-from config.app_config import get_config
+from app.config.app_config import get_config
 from app.module_name.routers import job_router
-from app.global_utilities.functions.request_validation import register_exception_handlers
+
 import logging
 
-# Disable specific Uvicorn loggers
-loggers_to_disable = [
-    "uvicorn",          # General logs including shutdown/startup
-    "uvicorn.error",    # Error-level logs
-    "uvicorn.access"    # Access logs (every request log)
-]
 
-for logger_name in loggers_to_disable:
-    logger = logging.getLogger(logger_name)
-    logger.disabled = True
 
 # Configure FastAPI app based on environment
 if get_config().APP_ENV == "PROD":

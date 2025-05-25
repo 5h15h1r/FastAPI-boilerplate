@@ -1,5 +1,5 @@
 import psycopg2
-from config.app_config import get_config
+from app.config.app_config import get_config
 
 def db_connection():
     """
@@ -9,12 +9,14 @@ def db_connection():
     USER = get_config().DB_USER
     PASS = get_config().DB_PASSWORD
     DATABASE = get_config().DB_NAME
+    PORT = get_config().DB_PORT
     
     connection = psycopg2.connect(
         host=HOST,
         user=USER,
         password=PASS,
-        dbname=DATABASE
+        dbname=DATABASE,
+        port=PORT
     )
     
     return connection 
